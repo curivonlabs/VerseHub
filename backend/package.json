@@ -1,15 +1,16 @@
 {
-  "name": "backend",
+  "name": "versehub-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Write. Read. Share.",
+  "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
