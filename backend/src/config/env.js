@@ -97,7 +97,7 @@ const env = Object.freeze({
   }),
 
   database: Object.freeze({
-    dbURL: values.MONGODB_URI
+    dbURL: values.DB_URI
   }),
 
   auth: Object.freeze({
