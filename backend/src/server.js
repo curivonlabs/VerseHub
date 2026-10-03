@@ -7,6 +7,9 @@ import authRoutes from "./routers/user.router.js";
 const app = express();
 const PORT = env.app.port || 3000;
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 connectDB();
 
 app.use("/api/v1/auth", authRoutes);
