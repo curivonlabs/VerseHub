@@ -10,6 +10,7 @@ import env from "./config/env.js";
 import connectDB from "./config/database.js";
 import authRoutes from "./routers/user.router.js";
 import postRoutes from "./routers/post.router.js";
+import adminRoutes from "./routers/admin.router.js";
 
 const app = express();
 const PORT = env.app.port || 3000;
@@ -18,6 +19,7 @@ app.use(helmet());
 app.use(compression());
 
 app.use(cors())
+app.use(mongoSanitize());
 /*
 app.use(cors({
   origin: env.security.corsOrigins || "*", 
@@ -45,6 +47,7 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 app.use("/api/v1/users", authRoutes);
 app.use("/api/v1/posts", postRoutes);
+app.use("/api/v1/admin", adminRoutes);
 
 app.get("/", (_req, res) => {
   res.status(200).json({
@@ -69,8 +72,6 @@ app.use((_req, res, _next) => {
     status_code: 404,
   });
 });
-
-app.use(mongoSanitize());
 
 app.use((err, _req, res, _next) => {
   console.error("Global Error Caught: ", err.stack);

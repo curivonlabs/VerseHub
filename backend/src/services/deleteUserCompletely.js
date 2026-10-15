@@ -1,10 +1,16 @@
-
 import mongoose from "mongoose";
 import User from "../models/User.js";
 import Post from "../models/Post.js";
 import Comment from "../models/Comment.js";
 
 export const deleteUserCompletely = async (userId) => {
+  if (!mongoose.isValidObjectId(userId)) {
+    const error = new Error("Invalid user ID");
+    error.statusCode = 400;
+    error.publicMessage = "Invalid user ID";
+    throw error;
+  }
+
   const session = await mongoose.startSession();
 
   try {
@@ -16,7 +22,24 @@ export const deleteUserCompletely = async (userId) => {
       if (!user) {
         const error = new Error("User not found");
         error.statusCode = 404;
+        error.publicMessage = "User not found";
         throw error;
+      }
+
+      if (user.role === "admin") {
+        const adminCount = await User.countDocuments({
+          role: "admin",
+        }).session(session);
+
+        if (adminCount <= 1) {
+          const error = new Error(
+            "The last administrator cannot be deleted"
+          );
+          error.statusCode = 409;
+          error.publicMessage =
+            "The last administrator cannot be deleted";
+          throw error;
+        }
       }
 
       const posts = await Post.find({ author: user._id })
@@ -60,7 +83,11 @@ export const deleteUserCompletely = async (userId) => {
 
       await Comment.updateMany(
         {},
-        { $pull: { likes: user._id } },
+        {
+          $pull: {
+            likes: user._id,
+          },
+        },
         { session }
       );
 
@@ -78,7 +105,10 @@ export const deleteUserCompletely = async (userId) => {
         );
       }
 
-      await User.deleteOne({ _id: user._id }, { session });
+      await User.deleteOne(
+        { _id: user._id },
+        { session }
+      );
 
       deletedUser = {
         id: user._id.toString(),
