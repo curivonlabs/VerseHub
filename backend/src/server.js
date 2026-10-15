@@ -4,7 +4,7 @@ import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import compression from "compression";
-import mongoSanitize from "express-mongo-sanitize";
+import mongoSanitize from "@exortek/express-mongo-sanitize";
 
 import env from "./config/env.js";
 import connectDB from "./config/database.js";
@@ -14,6 +14,9 @@ import adminRoutes from "./routers/admin.router.js";
 
 const app = express();
 const PORT = env.app.port || 3000;
+
+app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
 app.use(compression());
@@ -41,9 +44,6 @@ const limiter = rateLimit({
 app.use("/api/", limiter);
 
 app.use(morgan("dev"));
-
-app.use(express.json({ limit: "10kb" }));
-app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 app.use("/api/v1/users", authRoutes);
 app.use("/api/v1/posts", postRoutes);
