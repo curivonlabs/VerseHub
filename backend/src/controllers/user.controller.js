@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 
+import { deleteUserCompletely } from "../services/deleteUserCompletely.js";
+
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const getPublicUser = (user) => ({
@@ -309,7 +311,6 @@ export const getOneUser = async (req, res) => {
   }
 };
 
-
 export const updateAccount = async (req, res) => {
   try {
     const { name, username, email } = req.body ?? {};
@@ -440,7 +441,6 @@ export const updateAccount = async (req, res) => {
   }
 };
 
-
 export const deleteAccount = async (req, res) => {
   try {
     const { password } = req.body ?? {};
@@ -453,8 +453,7 @@ export const deleteAccount = async (req, res) => {
       });
     }
 
-    const user = await User.findById(req.user.userId)
-      .select("+password");
+    const user = await User.findById(req.user.userId).select("+password");
 
     if (!user) {
       return res.status(404).json({
@@ -477,7 +476,7 @@ export const deleteAccount = async (req, res) => {
       });
     }
 
-    await User.deleteOne({ _id: user._id });
+    await deleteUserCompletely(user._id);
 
     return res.status(200).json({
       success: true,
@@ -487,11 +486,13 @@ export const deleteAccount = async (req, res) => {
   } catch (error) {
     console.error("Error in deleteAccount:", error);
 
-    return res.status(500).json({
+    return res.status(error.statusCode || 500).json({
       success: false,
-      message: "Internal Server Error",
-      error: error.message,
-      status_code: 500,
+      message:
+        error.statusCode === 404
+          ? "User not found"
+          : "Internal Server Error",
+      status_code: error.statusCode || 500,
     });
   }
 };

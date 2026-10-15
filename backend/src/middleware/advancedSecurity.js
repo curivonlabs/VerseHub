@@ -50,7 +50,9 @@ export const advancedSecurity = () => {
                 const contentType = req.headers['content-type'];
                 if (!contentType || (!contentType.includes('application/json') && !contentType.includes('multipart/form-data'))) {
                     return res.status(415).json({
-                        error: 'Unsupported Media Type. Mutations must use application/json or multipart/form-data.'
+                        success: false,
+                        error: 'Unsupported Media Type. Mutations must use application/json or multipart/form-data.',
+                        status_code: 415,
                     });
                 }
             }
@@ -76,7 +78,11 @@ export const advancedSecurity = () => {
             next();
         } catch (err) {
             console.error('Security Middleware Fault:', err);
-            return res.status(400).json({ error: 'Bad Request / Security Violation Detected.' });
+            return res.status(400).json({ 
+              success: false,
+              error: 'Bad Request / Security Violation Detected.',
+              status_code: 400,
+            });
         }
     };
 };
@@ -105,7 +111,11 @@ export const verifyHmacSignature = (secretKey, headerName = 'x-signature') => {
     return (req, res, next) => {
         const signature = req.headers[headerName];
         if (!signature) {
-            return res.status(401).json({ error: 'Missing security signature header.' });
+            return res.status(401).json({ 
+              success: false,
+              error: 'Missing security signature header.',
+              status_code: 401,
+            });
         }
 
         const computedSignature = crypto
@@ -114,7 +124,11 @@ export const verifyHmacSignature = (secretKey, headerName = 'x-signature') => {
             .digest('hex');
 
         if (!secureCompare(signature, computedSignature)) {
-            return res.status(403).json({ error: 'Invalid cryptographic signature.' });
+            return res.status(403).json({
+              success: false,
+              error: 'Invalid cryptographic signature.',
+              status_code: 403,
+            });
         }
 
         next();
