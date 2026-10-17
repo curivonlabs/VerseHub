@@ -12,25 +12,34 @@ import {
   updateComment,
   deleteComment,
 } from "../controllers/post.comment.controller.js";
+import {
+  savePoem,
+  unsavePoem,
+  getSavedPoems,
+} from "../controllers/post.save.controller.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.route("/")
-  .post(protect, createPost)
-  .get(getAllPosts);
+router.route("/").post(protect, createPost).get(getAllPosts);
 
-router.route("/:id")
+router
+  .route("/:id")
   .get(getOnePost)
   .patch(protect, updatePost)
   .delete(protect, deletePost);
 
-router.route("/:postId/comments")
+router
+  .route("/:postId/comments")
   .post(protect, createComment)
   .get(getPostComments);
 
-router.route("/comments/:commentId")
+router
+  .route("/comments/:commentId")
   .patch(protect, updateComment)
   .delete(protect, deleteComment);
 
+router.get("/saved", protect, getSavedPoems);
+router.post("/:postId/save", protect, savePoem);
+router.delete("/:postId/save", protect, unsavePoem);
 export default router;

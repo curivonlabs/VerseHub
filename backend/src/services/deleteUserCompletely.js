@@ -32,12 +32,9 @@ export const deleteUserCompletely = async (userId) => {
         }).session(session);
 
         if (adminCount <= 1) {
-          const error = new Error(
-            "The last administrator cannot be deleted"
-          );
+          const error = new Error("The last administrator cannot be deleted");
           error.statusCode = 409;
-          error.publicMessage =
-            "The last administrator cannot be deleted";
+          error.publicMessage = "The last administrator cannot be deleted";
           throw error;
         }
       }
@@ -49,10 +46,7 @@ export const deleteUserCompletely = async (userId) => {
       const postIds = posts.map((post) => post._id);
 
       const comments = await Comment.find({
-        $or: [
-          { author: user._id },
-          { postId: { $in: postIds } },
-        ],
+        $or: [{ author: user._id }, { postId: { $in: postIds } }],
       })
         .select("_id")
         .session(session);
@@ -67,7 +61,7 @@ export const deleteUserCompletely = async (userId) => {
             following: user._id,
           },
         },
-        { session }
+        { session },
       );
 
       await Post.updateMany(
@@ -78,7 +72,7 @@ export const deleteUserCompletely = async (userId) => {
             comments: { $in: commentIds },
           },
         },
-        { session }
+        { session },
       );
 
       await Comment.updateMany(
@@ -88,27 +82,18 @@ export const deleteUserCompletely = async (userId) => {
             likes: user._id,
           },
         },
-        { session }
+        { session },
       );
 
       if (commentIds.length > 0) {
-        await Comment.deleteMany(
-          { _id: { $in: commentIds } },
-          { session }
-        );
+        await Comment.deleteMany({ _id: { $in: commentIds } }, { session });
       }
 
       if (postIds.length > 0) {
-        await Post.deleteMany(
-          { _id: { $in: postIds } },
-          { session }
-        );
+        await Post.deleteMany({ _id: { $in: postIds } }, { session });
       }
 
-      await User.deleteOne(
-        { _id: user._id },
-        { session }
-      );
+      await User.deleteOne({ _id: user._id }, { session });
 
       deletedUser = {
         id: user._id.toString(),

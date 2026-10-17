@@ -36,12 +36,11 @@ export const followUser = async (req, res) => {
       User.findByIdAndUpdate(
         currentUserId,
         { $addToSet: { following: targetUserId } },
-        { new: true }
+        { new: true },
       ),
-      User.findByIdAndUpdate(
-        targetUserId,
-        { $addToSet: { followers: currentUserId } }
-      ),
+      User.findByIdAndUpdate(targetUserId, {
+        $addToSet: { followers: currentUserId },
+      }),
     ]);
 
     return res.status(200).json({
@@ -95,12 +94,11 @@ export const unfollowUser = async (req, res) => {
       User.findByIdAndUpdate(
         currentUserId,
         { $pull: { following: targetUserId } },
-        { new: true }
+        { new: true },
       ),
-      User.findByIdAndUpdate(
-        targetUserId,
-        { $pull: { followers: currentUserId } }
-      ),
+      User.findByIdAndUpdate(targetUserId, {
+        $pull: { followers: currentUserId },
+      }),
     ]);
 
     return res.status(200).json({

@@ -53,7 +53,7 @@ export const createComment = async (req, res) => {
 
     const populatedComment = await Comment.findById(comment._id).populate(
       "author",
-      "name username profilePic"
+      "name username profilePic",
     );
 
     return res.status(201).json({
@@ -142,7 +142,7 @@ export const updateComment = async (req, res) => {
     const comment = await Comment.findOneAndUpdate(
       { _id: commentId, author: req.user.userId },
       { $set: { content: content.trim() } },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).populate("author", "name username profilePic");
 
     if (!comment) {

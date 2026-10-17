@@ -7,7 +7,7 @@ import {
   getAllUsers,
   getOneUser,
   updateAccount,
-  deleteAccount
+  deleteAccount,
 } from "../controllers/user.controller.js";
 
 import {
@@ -17,10 +17,7 @@ import {
   getFollowing,
 } from "../controllers/user.follow.controller.js";
 
-import {
-  protect,
-  adminOnly,
-} from "../middleware/authMiddleware.js";
+import { protect, adminOnly } from "../middleware/authMiddleware.js";
 
 const router = Router();
 

@@ -1,4 +1,3 @@
-
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
@@ -39,8 +38,7 @@ export const protect = async (req, res, next) => {
       });
     }
 
-    const user = await User.findById(decoded.userId)
-      .select("_id role");
+    const user = await User.findById(decoded.userId).select("_id role");
 
     if (!user) {
       return res.status(401).json({

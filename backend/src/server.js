@@ -5,6 +5,7 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import compression from "compression";
 import mongoSanitize from "@exortek/express-mongo-sanitize";
+import mongoose from "mongoose";
 
 import env from "./config/env.js";
 import connectDB from "./config/database.js";
@@ -15,13 +16,13 @@ import adminRoutes from "./routers/admin.router.js";
 const app = express();
 const PORT = env.app.port || 3000;
 
-app.use(express.json({ limit: "10kb" }));
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
 app.use(compression());
 
-app.use(cors())
+app.use(cors());
 app.use(mongoSanitize());
 /*
 app.use(cors({
@@ -37,7 +38,8 @@ const limiter = rateLimit({
   legacyHeaders: false,
   message: {
     success: false,
-    message: "Too many requests from this IP, please try again after 15 minutes.",
+    message:
+      "Too many requests from this IP, please try again after 15 minutes.",
     status_code: 429,
   },
 });
@@ -52,16 +54,47 @@ app.use("/api/v1/admin", adminRoutes);
 app.get("/", (_req, res) => {
   res.status(200).json({
     success: true,
-    message: "Welcome to VerseHub Server!",
-    status_code: 200,
+    message: "Welcome to VerseHub API",
+    data: {
+      name: "VerseHub",
+      description:
+        "A creative writing platform for poets and composition writers.",
+      version: "1.0.0",
+      status: "operational",
+    },
+    endpoints: {
+      home: "/",
+      health: "/health",
+      users: "/api/v1/users",
+      authentication: "/api/v1/auth",
+    },
+    timestamp: new Date().toISOString(),
   });
 });
 
 app.get("/health", (_req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Everything is okay!",
-    status_code: 200,
+  const databaseConnected = mongoose.connection.readyState === 1;
+  const statusCode = databaseConnected ? 200 : 503;
+
+  res.status(statusCode).json({
+    success: databaseConnected,
+    status: databaseConnected ? "healthy" : "unavailable",
+    message: databaseConnected
+      ? "VerseHub is operating normally."
+      : "VerseHub is experiencing a service interruption.",
+    status_code: statusCode,
+    uptime: {
+      seconds: Math.floor(process.uptime()),
+    },
+    services: {
+      api: {
+        status: "operational",
+      },
+      database: {
+        status: databaseConnected ? "connected" : "disconnected",
+      },
+    },
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -85,13 +118,16 @@ app.use((err, _req, res, _next) => {
 const startServer = async () => {
   try {
     await connectDB();
-    
+
     app.listen(PORT, () => {
       console.log(`\nServer Started on PORT: ${PORT}`);
       console.info(`Listening at http://localhost:${PORT}/`);
     });
   } catch (error) {
-    console.error("Failed to start server due to database connection error:", error);
+    console.error(
+      "Failed to start server due to database connection error:",
+      error,
+    );
     process.exit(1);
   }
 };

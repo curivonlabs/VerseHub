@@ -52,8 +52,14 @@ const userSchema = new mongoose.Schema(
       default: "user",
       required: true,
     },
+    savedPoems: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const User = mongoose.model("User", userSchema);

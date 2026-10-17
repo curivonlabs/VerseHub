@@ -36,8 +36,7 @@ const parsePositiveInteger = (value, fallback, maximum) => {
   return parsed;
 };
 
-const escapeRegex = (value) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const handleAdminError = (res, error, context) => {
   console.error(`Admin controller error (${context}):`, error);
@@ -67,9 +66,7 @@ const handleAdminError = (res, error, context) => {
 
 export const getAdminDashboard = async (req, res) => {
   try {
-    const sevenDaysAgo = new Date(
-      Date.now() - 7 * 24 * 60 * 60 * 1000
-    );
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
     const [
       totalUsers,
@@ -163,10 +160,7 @@ export const getAdminUsers = async (req, res) => {
       });
     }
 
-    if (
-      typeof sortBy !== "string" ||
-      !validSortFields.includes(sortBy)
-    ) {
+    if (typeof sortBy !== "string" || !validSortFields.includes(sortBy)) {
       return res.status(400).json({
         success: false,
         message: "Invalid sort field",
@@ -174,10 +168,7 @@ export const getAdminUsers = async (req, res) => {
       });
     }
 
-    if (
-      typeof sortOrder !== "string" ||
-      !["asc", "desc"].includes(sortOrder)
-    ) {
+    if (typeof sortOrder !== "string" || !["asc", "desc"].includes(sortOrder)) {
       return res.status(400).json({
         success: false,
         message: "Sort order must be asc or desc",
@@ -283,7 +274,7 @@ export const getAdminUserById = async (req, res) => {
 
     const user = await User.findById(id)
       .select(
-        "_id name username email role bio profilePic createdAt updatedAt followers following"
+        "_id name username email role bio profilePic createdAt updatedAt followers following",
       )
       .lean();
 
@@ -377,10 +368,7 @@ export const updateAdminUserRole = async (req, res) => {
         }).session(session);
 
         if (adminCount <= 1) {
-          throw createAdminError(
-            409,
-            "At least one administrator must remain"
-          );
+          throw createAdminError(409, "At least one administrator must remain");
         }
       }
 
@@ -439,7 +427,7 @@ export const deleteAdminUser = async (req, res) => {
         adminUserId: req.user.userId,
         deletedUserId: deletedUser.id,
         occurredAt: new Date().toISOString(),
-      })
+      }),
     );
 
     return res.status(200).json({

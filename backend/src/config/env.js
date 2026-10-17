@@ -6,21 +6,13 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
 
-  PORT: z.coerce
-    .number()
-    .int()
-    .min(1)
-    .max(65535)
-    .default(5000),
+  PORT: z.coerce.number().int().min(1).max(65535).default(5000),
 
-  HOST: z
-    .string()
-    .trim()
-    .min(1)
-    .max(255)
-    .default("127.0.0.1"),
+  HOST: z.string().trim().min(1).max(255).default("127.0.0.1"),
 
   DB_URI: z
     .string()
@@ -28,12 +20,11 @@ const envSchema = z.object({
     .min(1)
     .max(2048)
     .refine(
-      value =>
-        value.startsWith("mongodb://") ||
-        value.startsWith("mongodb+srv://"),
+      (value) =>
+        value.startsWith("mongodb://") || value.startsWith("mongodb+srv://"),
       {
-        message: "MONGODB_URI must be a valid MongoDB connection string"
-      }
+        message: "MONGODB_URI must be a valid MongoDB connection string",
+      },
     ),
 
   JWT_SECRET: z
@@ -41,39 +32,28 @@ const envSchema = z.object({
     .min(32, "JWT_SECRET must contain at least 32 characters")
     .max(512),
 
-  JWT_EXPIRES_IN: z
-    .string()
-    .trim()
-    .min(1)
-    .max(100)
-    .default("15m"),
+  JWT_EXPIRES_IN: z.string().trim().min(1).max(100).default("15m"),
 
   COOKIE_SECRET: z
     .string()
     .min(32, "COOKIE_SECRET must contain at least 32 characters")
     .max(512),
 
-  CORS_ORIGIN: z
-    .string()
-    .trim()
-    .min(1)
-    .max(2048),
+  CORS_ORIGIN: z.string().trim().min(1).max(2048),
 
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])
     .default("info"),
 
-  TRUST_PROXY: z
-    .enum(["true", "false"])
-    .default("false")
+  TRUST_PROXY: z.enum(["true", "false"]).default("false"),
 });
 
 const result = envSchema.safeParse(process.env);
 
 if (!result.success) {
-  const errors = result.error.issues.map(issue => ({
+  const errors = result.error.issues.map((issue) => ({
     variable: issue.path.join(".") || "environment",
-    message: issue.message
+    message: issue.message,
   }));
 
   console.error("Invalid environment configuration:", errors);
@@ -82,9 +62,8 @@ if (!result.success) {
 
 const values = result.data;
 
-const corsOrigins = values.CORS_ORIGIN
-  .split(",")
-  .map(origin => origin.trim())
+const corsOrigins = values.CORS_ORIGIN.split(",")
+  .map((origin) => origin.trim())
   .filter(Boolean);
 
 const env = Object.freeze({
@@ -93,22 +72,22 @@ const env = Object.freeze({
     port: values.PORT,
     host: values.HOST,
     logLevel: values.LOG_LEVEL,
-    trustProxy: values.TRUST_PROXY === "true"
+    trustProxy: values.TRUST_PROXY === "true",
   }),
 
   database: Object.freeze({
-    dbURL: values.DB_URI
+    dbURL: values.DB_URI,
   }),
 
   auth: Object.freeze({
     jwtSecret: values.JWT_SECRET,
     jwtExpiresIn: values.JWT_EXPIRES_IN,
-    cookieSecret: values.COOKIE_SECRET
+    cookieSecret: values.COOKIE_SECRET,
   }),
 
   security: Object.freeze({
-    corsOrigins
-  })
+    corsOrigins,
+  }),
 });
 
 export default env;

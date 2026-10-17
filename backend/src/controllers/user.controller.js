@@ -57,13 +57,11 @@ export const createAccount = async (req, res) => {
       });
     }
 
-    if (
-      password.length < 8 ||
-      Buffer.byteLength(password, "utf8") > 72
-    ) {
+    if (password.length < 8 || Buffer.byteLength(password, "utf8") > 72) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 8 characters and no more than 72 bytes",
+        message:
+          "Password must be at least 8 characters and no more than 72 bytes",
         status_code: 400,
       });
     }
@@ -82,17 +80,12 @@ export const createAccount = async (req, res) => {
     }
 
     const existingUser = await User.findOne({
-      $or: [
-        { email: normalizedEmail },
-        { username },
-      ],
+      $or: [{ email: normalizedEmail }, { username }],
     }).select("_id email username");
 
     if (existingUser) {
       const duplicateField =
-        existingUser.email === normalizedEmail
-          ? "Email"
-          : "Username";
+        existingUser.email === normalizedEmail ? "Email" : "Username";
 
       return res.status(409).json({
         success: false,
@@ -194,10 +187,7 @@ export const loginAccount = async (req, res) => {
       });
     }
 
-    const passwordMatches = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const passwordMatches = await bcrypt.compare(password, user.password);
 
     if (!passwordMatches) {
       return res.status(401).json({
@@ -281,9 +271,7 @@ export const getOneUser = async (req, res) => {
       });
     }
 
-    const user = await User.findById(id)
-      .select("-password")
-      .lean();
+    const user = await User.findById(id).select("-password").lean();
 
     if (!user) {
       return res.status(404).json({
@@ -316,11 +304,7 @@ export const updateAccount = async (req, res) => {
     const { name, username, email } = req.body ?? {};
     const updates = {};
 
-    if (
-      name === undefined &&
-      username === undefined &&
-      email === undefined
-    ) {
+    if (name === undefined && username === undefined && email === undefined) {
       return res.status(400).json({
         success: false,
         message: "At least one field is required",
@@ -367,7 +351,8 @@ export const updateAccount = async (req, res) => {
       ) {
         return res.status(400).json({
           success: false,
-          message: "Username must be 3–30 characters and contain only letters, numbers, or underscores",
+          message:
+            "Username must be 3–30 characters and contain only letters, numbers, or underscores",
           status_code: 400,
         });
       }
@@ -463,10 +448,7 @@ export const deleteAccount = async (req, res) => {
       });
     }
 
-    const passwordMatches = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const passwordMatches = await bcrypt.compare(password, user.password);
 
     if (!passwordMatches) {
       return res.status(401).json({
@@ -489,9 +471,7 @@ export const deleteAccount = async (req, res) => {
     return res.status(error.statusCode || 500).json({
       success: false,
       message:
-        error.statusCode === 404
-          ? "User not found"
-          : "Internal Server Error",
+        error.statusCode === 404 ? "User not found" : "Internal Server Error",
       status_code: error.statusCode || 500,
     });
   }

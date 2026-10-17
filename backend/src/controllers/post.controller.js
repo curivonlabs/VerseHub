@@ -21,7 +21,8 @@ export const createPost = async (req, res) => {
     if (title.trim().length > 150 || content.trim().length > 5000) {
       return res.status(400).json({
         success: false,
-        message: "Title must not exceed 150 characters and content must not exceed 5000 characters",
+        message:
+          "Title must not exceed 150 characters and content must not exceed 5000 characters",
         status_code: 400,
       });
     }
@@ -34,7 +35,7 @@ export const createPost = async (req, res) => {
 
     const populatedPost = await Post.findById(post._id).populate(
       "author",
-      "name username profilePic"
+      "name username profilePic",
     );
 
     return res.status(201).json({
@@ -57,7 +58,7 @@ export const getAllPosts = async (req, res) => {
     const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
     const limit = Math.min(
       50,
-      Math.max(1, Number.parseInt(req.query.limit, 10) || 20)
+      Math.max(1, Number.parseInt(req.query.limit, 10) || 20),
     );
 
     const [posts, totalPosts] = await Promise.all([
@@ -192,7 +193,7 @@ export const updatePost = async (req, res) => {
     const post = await Post.findOneAndUpdate(
       { _id: id, author: req.user.userId },
       { $set: updates },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).populate("author", "name username profilePic");
 
     if (!post) {
