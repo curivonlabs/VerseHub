@@ -12,6 +12,7 @@ import {
   updateComment,
   deleteComment,
 } from "../controllers/post.comment.controller.js";
+import { togglePostLike } from "../controllers/post.like.controller.js";
 import {
   savePoem,
   unsavePoem,
@@ -22,6 +23,11 @@ import { protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 router.route("/").post(protect, createPost).get(getAllPosts);
+
+router.get("/saved", protect, getSavedPoems);
+router.post("/:postId/like", protect, togglePostLike);
+router.post("/:postId/save", protect, savePoem);
+router.delete("/:postId/save", protect, unsavePoem);
 
 router
   .route("/:id")
@@ -39,7 +45,4 @@ router
   .patch(protect, updateComment)
   .delete(protect, deleteComment);
 
-router.get("/saved", protect, getSavedPoems);
-router.post("/:postId/save", protect, savePoem);
-router.delete("/:postId/save", protect, unsavePoem);
 export default router;

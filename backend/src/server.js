@@ -16,24 +16,23 @@ import adminRoutes from "./routers/admin.router.js";
 const app = express();
 const PORT = env.app.port || 3000;
 
+app.set("trust proxy", env.app.trustProxy);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
 app.use(compression());
 
-app.use(cors());
-app.use(mongoSanitize());
-/*
 app.use(cors({
   origin: env.security.corsOrigins || "*", 
   credentials: true,
 }));
-*/
+app.use(mongoSanitize());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  limit: 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: {

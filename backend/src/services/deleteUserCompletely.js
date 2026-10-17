@@ -59,6 +59,7 @@ export const deleteUserCompletely = async (userId) => {
           $pull: {
             followers: user._id,
             following: user._id,
+            savedPoems: { $in: postIds },
           },
         },
         { session },

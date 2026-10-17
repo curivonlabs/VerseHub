@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import Post from "../models/Post.js";
+import Comment from "../models/Comment.js";
+import User from "../models/User.js";
 
 export const createPost = async (req, res) => {
   try {
@@ -251,6 +253,14 @@ export const deletePost = async (req, res) => {
         status_code: exists ? 403 : 404,
       });
     }
+
+    await Promise.all([
+      Comment.deleteMany({ postId: post._id }),
+      User.updateMany(
+        { savedPoems: post._id },
+        { $pull: { savedPoems: post._id } },
+      ),
+    ]);
 
     return res.status(200).json({
       success: true,

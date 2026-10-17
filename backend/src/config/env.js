@@ -1,3 +1,4 @@
+
 import dotenv from "dotenv";
 import * as z from "zod";
 
@@ -23,7 +24,7 @@ const envSchema = z.object({
       (value) =>
         value.startsWith("mongodb://") || value.startsWith("mongodb+srv://"),
       {
-        message: "MONGODB_URI must be a valid MongoDB connection string",
+        message: "DB_URI must be a valid MongoDB connection string",
       },
     ),
 

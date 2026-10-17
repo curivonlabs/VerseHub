@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import env from "../config/env.js";
 
 export const protect = async (req, res, next) => {
   try {
@@ -23,7 +24,9 @@ export const protect = async (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, env.auth.jwtSecret, {
+      algorithms: ["HS256"],
+    });
 
     if (
       !decoded ||

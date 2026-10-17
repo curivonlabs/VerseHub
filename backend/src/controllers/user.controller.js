@@ -66,31 +66,43 @@ export const createAccount = async (req, res) => {
       });
     }
 
-    const username = normalizedName
-      .toLowerCase()
-      .replace(/\s+/g, "_")
-      .replace(/[^a-z0-9_]/g, "");
+    const existingEmail = await User.findOne({
+      email: normalizedEmail,
+    }).select("_id");
 
-    if (!username) {
-      return res.status(400).json({
+    if (existingEmail) {
+      return res.status(409).json({
         success: false,
-        message: "A valid username could not be generated",
-        status_code: 400,
+        message: "Email already exists",
+        status_code: 409,
       });
     }
 
-    const existingUser = await User.findOne({
-      $or: [{ email: normalizedEmail }, { username }],
-    }).select("_id email username");
+    // Base is capped at 43 chars so base + "_" + 4 digits is at most 48
+    const baseUsername =
+      normalizedName
+        .toLowerCase()
+        .replace(/\s+/g, "_")
+        .replace(/[^a-z0-9_]/g, "")
+        .slice(0, 43) || "user";
 
-    if (existingUser) {
-      const duplicateField =
-        existingUser.email === normalizedEmail ? "Email" : "Username";
+    let username = null;
 
-      return res.status(409).json({
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const candidate = `${baseUsername}_${Math.floor(1000 + Math.random() * 9000)}`;
+      const usernameTaken = await User.exists({ username: candidate });
+
+      if (!usernameTaken) {
+        username = candidate;
+        break;
+      }
+    }
+
+    if (!username) {
+      return res.status(500).json({
         success: false,
-        message: `${duplicateField} already exists`,
-        status_code: 409,
+        message: "Could not generate a unique username, please try again",
+        status_code: 500,
       });
     }
 
@@ -347,12 +359,12 @@ export const updateAccount = async (req, res) => {
     if (username !== undefined) {
       if (
         typeof username !== "string" ||
-        !/^[a-zA-Z0-9_]{3,30}$/.test(username.trim())
+        !/^[a-zA-Z0-9_]{5,50}$/.test(username.trim())
       ) {
         return res.status(400).json({
           success: false,
           message:
-            "Username must be 3–30 characters and contain only letters, numbers, or underscores",
+            "Username must be 5–50 characters and contain only letters, numbers, or underscores",
           status_code: 400,
         });
       }
@@ -415,6 +427,14 @@ export const updateAccount = async (req, res) => {
       });
     }
 
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid account details",
+        status_code: 400,
+      });
+    }
+
     console.error("Error in updateAccount:", error);
 
     return res.status(500).json({
@@ -470,8 +490,7 @@ export const deleteAccount = async (req, res) => {
 
     return res.status(error.statusCode || 500).json({
       success: false,
-      message:
-        error.statusCode === 404 ? "User not found" : "Internal Server Error",
+      message: error.publicMessage || "Internal Server Error",
       status_code: error.statusCode || 500,
     });
   }

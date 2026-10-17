@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
@@ -17,8 +18,10 @@ const userSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      minLength: 10,
-      maxLength: 150,
+      minLength: 6,
+      maxLength: 254,
+      lowercase: true,
+      trim: true,
       unique: true,
       required: true,
     },
