@@ -64,8 +64,7 @@ app.get("/", (_req, res) => {
     endpoints: {
       home: "/",
       health: "/health",
-      users: "/api/v1/users",
-      authentication: "/api/v1/auth",
+      authentication_and_users: "/api/v1/users",
     },
     timestamp: new Date().toISOString(),
   });
