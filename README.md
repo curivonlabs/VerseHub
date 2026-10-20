@@ -16,7 +16,7 @@ A creative community for poets, storytellers, and composition writers to share t
 
 <br />
 
-**Write. Share. Connect.**
+**Write. Read. Inspire.**
 
 </div>
 
