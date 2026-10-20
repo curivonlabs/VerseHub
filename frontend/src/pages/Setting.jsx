@@ -1,7 +1,9 @@
-import react from "react";
+import React from "react";
 
 export default function Setting() {
   return (
-    <h1>Setting Page!</h1>
+    <>
+      <h1>Setting Page!</h1>
+    </>
   )
 }

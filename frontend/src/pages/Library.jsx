@@ -1,7 +1,9 @@
-import react from "react";
+import React from "react";
 
 export default function Library() {
   return (
-    <h1>Library Page!</h1>
+    <>
+      <h1>Library Page!</h1>
+    </>
   )
 }
