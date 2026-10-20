@@ -6,6 +6,7 @@ import {
   loginAccount,
   getAllUsers,
   getOneUser,
+  getUserByUsername,
   updateAccount,
   deleteAccount,
 } from "../controllers/user.controller.js";
@@ -26,6 +27,7 @@ router.post("/login", loginRateLimiter, loginAccount);
 
 router.get("/", protect, adminOnly, getAllUsers);
 router.get("/:id", protect, getOneUser);
+router.get("/username/:username", getUserByUsername);
 router.patch("/account", protect, updateAccount);
 router.delete("/account", protect, deleteAccount);
 

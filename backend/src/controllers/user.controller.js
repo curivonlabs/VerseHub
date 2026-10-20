@@ -311,6 +311,67 @@ export const getOneUser = async (req, res) => {
   }
 };
 
+export const getUserByUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    if (
+      typeof username !== "string" ||
+      !/^[a-zA-Z0-9_]{5,50}$/.test(username.trim())
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid username",
+        status_code: 400,
+      });
+    }
+
+    const normalizedUsername = username.trim().toLowerCase();
+
+    const user = await User.findOne({
+      username: normalizedUsername,
+    })
+      .select(
+        "_id username name bio profilePic followers following createdAt",
+      )
+      .lean();
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+        status_code: 404,
+      });
+    }
+
+    const publicProfile = {
+      id: user._id,
+      username: user.username,
+      name: user.name,
+      bio: user.bio,
+      profilePic: user.profilePic,
+      followersCount: user.followers.length,
+      followingCount: user.following.length,
+      createdAt: user.createdAt,
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: "User fetched successfully",
+      status_code: 200,
+      data: publicProfile,
+    });
+  } catch (error) {
+    console.error("Error in getUserByUsername:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      status_code: 500,
+    });
+  }
+};
+
 export const updateAccount = async (req, res) => {
   try {
     const { name, username, email } = req.body ?? {};
